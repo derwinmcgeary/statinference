@@ -1,0 +1,45 @@
+---
+title: "The Effect of Vitamin C on Tooth Growth in Guinea Pigs"
+author: "Derwin McGeary"
+date: "09/20/2015"
+output: pdf_document
+---
+### Introduction
+
+This is a brief analysis of the `ToothGrowth` dataset which is distributed with the R programming language.
+
+From the [documentation](http://www.inside-r.org/r-doc/datasets/ToothGrowth) for that dataset:
+
+> The response is the length of odontoblasts (teeth) in each of 10 guinea pigs at each of three dose levels of Vitamin C (0.5, 1, and 2 mg) with each of two delivery methods (orange juice or ascorbic acid).
+
+We wish to know how the delivery method and dosage affect tooth length.
+
+### Initial analysis
+
+First we load the data into memory, check the structure, and do a preliminary plot to see what it looks like.
+```{r}
+data(ToothGrowth)
+library(ggplot2)
+str(ToothGrowth)
+summary(ToothGrowth)
+```
+
+As expected, we have 60 observations (3 dosages, multiplied by 2 supplements and 10 guinea pigs). We know from the documentation that dosage is in `mg`, that `OJ` stands for Orange Juice and `VC` stands for Vitamin C, or ascorbic acid. The units of length are not specified there, but from [Crampton 47](http://jn.nutrition.org/content/33/5/491.full.pdf) they appear to be microns. For the purposes of this analysis, the units aren't critical.
+
+```{r, echo=FALSE}
+qplot(x = ToothGrowth$dose, y=ToothGrowth$len,geom = "smooth", 
+      method="lm", 
+      colour=ToothGrowth$supp, 
+      main="Tooth Growth by Supplement and Dosage",
+      xlab="Dosage (mg)",
+      ylab="Length (microns)") + 
+  scale_colour_discrete(name="Supplement") +
+  scale_shape_discrete(name="Supplement") +
+  geom_point(aes(shape=ToothGrowth$supp))
+```
+
+Looking at this graph it appears that there is a positive relationship between dosage and odontoblast length, and that orange juice results in more growth than plain vitamin C.
+
+### Confidence Intervals and Hypothesis Testing
+
+### Conclusion
