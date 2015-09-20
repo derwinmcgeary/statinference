@@ -2,8 +2,9 @@
 title: "Central Limit Theorem and the Exponential Distribution"
 author: "Derwin McGeary"
 date: "September 18, 2015"
-output: 
-  pdf_document: 
+output:
+  html_document: default
+  pdf_document:
     fig_height: 3
 ---
 ### Overview
