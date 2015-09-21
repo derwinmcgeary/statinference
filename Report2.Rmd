@@ -14,17 +14,19 @@ From the [documentation](http://www.inside-r.org/r-doc/datasets/ToothGrowth) for
 
 We wish to know how the delivery method and dosage affect tooth length.
 
-### Initial analysis
+### Exploratory analysis
 
 First we load the data into memory, check the structure, and do a preliminary plot to see what it looks like.
 ```{r}
 data(ToothGrowth)
 library(ggplot2)
+library(knitr)
 str(ToothGrowth)
-summary(ToothGrowth)
+kable(table(ToothGrowth$dose,ToothGrowth$supp))
+summary(ToothGrowth$len)
 ```
 
-As expected, we have 60 observations (3 dosages, multiplied by 2 supplements and 10 guinea pigs). We know from the documentation that dosage is in `mg`, that `OJ` stands for Orange Juice and `VC` stands for Vitamin C, or ascorbic acid. The units of length are not specified there, but from [Crampton 47](http://jn.nutrition.org/content/33/5/491.full.pdf) they appear to be microns. For the purposes of this analysis, the units aren't critical.
+As expected, we have 60 observations (3 dosages, 0.5, 1, and 2; multiplied by 2 supplements, OJ and VC; and 10 guinea pigs). We know from the documentation that dosage is in `mg`, that `OJ` stands for Orange Juice and `VC` stands for Vitamin C, or ascorbic acid. The units of length are not specified there, but from [Crampton 47](http://jn.nutrition.org/content/33/5/491.full.pdf) they appear to be microns. For the purposes of this analysis, the units aren't critical.
 
 ```{r, echo=FALSE}
 qplot(x = ToothGrowth$dose, y=ToothGrowth$len,geom = "smooth", 
@@ -41,5 +43,9 @@ qplot(x = ToothGrowth$dose, y=ToothGrowth$len,geom = "smooth",
 Looking at this graph it appears that there is a positive relationship between dosage and odontoblast length, and that orange juice results in more growth than plain vitamin C.
 
 ### Confidence Intervals and Hypothesis Testing
+
+## Dosage and Odontoblast Length
+
+## Supplement and Odontoblast Length
 
 ### Conclusion
