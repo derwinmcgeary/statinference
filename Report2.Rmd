@@ -4,7 +4,7 @@ author: "Derwin McGeary"
 date: "09/20/2015"
 output: pdf_document
 ---
-### Introduction
+## Introduction
 
 This is a brief analysis of the `ToothGrowth` dataset which is distributed with the R programming language.
 
@@ -14,7 +14,7 @@ From the [documentation](http://www.inside-r.org/r-doc/datasets/ToothGrowth) for
 
 We wish to know how the delivery method and dosage affect tooth length.
 
-### Exploratory analysis
+## Exploratory analysis
 
 First we load the data into memory, check the structure, and do a preliminary plot to see what it looks like.
 ```{r}
@@ -26,7 +26,7 @@ kable(table(ToothGrowth$dose,ToothGrowth$supp))
 summary(ToothGrowth$len)
 ```
 
-As expected, we have 60 observations (3 dosages, 0.5, 1, and 2; multiplied by 2 supplements, OJ and VC; and 10 guinea pigs per group). We know from the documentation that dosage is in `mg/day`, that `OJ` stands for Orange Juice and `VC` stands for Vitamin C, or ascorbic acid. The units of length are not specified there, but from [Crampton 1947](http://jn.nutrition.org/content/33/5/491.full.pdf) they appear to be microns. For the purposes of this analysis, the units aren't critical.
+As expected, we have 60 observations (3 dosages, 0.5, 1, and 2; multiplied by 2 supplements, OJ and VC; and 10 guinea pigs per group). We know from the documentation that dosage is in `mg/day`, that `OJ` stands for Orange Juice and `VC` stands for Vitamin C, or ascorbic acid. The units of length are not specified there, but from [Crampton 1947](http://jn.nutrition.org/content/33/5/491.full.pdf) they appear to be microns. For the purposes of this analysis, the units aren't critical. Now we can look at the data visually.
 
 ```{r, echo=FALSE}
 qplot(x = ToothGrowth$dose, y=ToothGrowth$len,geom = "smooth", 
@@ -42,23 +42,89 @@ qplot(x = ToothGrowth$dose, y=ToothGrowth$len,geom = "smooth",
 
 Looking at this graph it appears that there is a positive relationship between dosage and odontoblast length, and that orange juice results in more growth than plain vitamin C.
 
-### Confidence Intervals and Hypothesis Testing
+## Confidence Intervals and Hypothesis Testing
+For all of these tests we will use a T-test, and the samples are assumed to be independent (not paired: these are different animals) and roughly normally distributed, and we will examine the p-value and 95% confidence interval.
 
-## Dosage and Odontoblast Length
+### Dosage and Odontoblast Length
 Here we will make three groups by dosage and take two comparisons: 0.5 mg/day versus 1 mg/day; and 1 mg/day versus 2 mg/day.
 ```{r}
 d1 <- subset(ToothGrowth, dose==0.5); d2 <- subset(ToothGrowth, dose==1.0); d3 <- subset(ToothGrowth, dose==2.0)
 halfvsone <- t.test(d1$len,d2$len, paired=FALSE,var.equal=FALSE)
 onevstwo <- t.test(d2$len,d3$len, paired=FALSE,var.equal=FALSE)
-halfvsone; onevstwo
+halfvsone$conf.int
 ```
-## Supplement and Odontoblast Length
+```{r echo=FALSE}
+pv <- halfvsone$p.value
+ci1 <- halfvsone$conf.int[1]
+ci2 <- halfvsone$conf.int[2]
+```
+Our first set of tests compares 0.5 mg/day with 1 mg/day. Our p-value is $`r pv`$ which is very low. Our confidence interval is `r ci1` to `r ci2` which does **not** include zero, so we can say that **there is a significant increase in tooth size at the p=0.5 level**.
+```{r}
+onevstwo$conf.int
+```
+```{r echo=FALSE}
+pv <- onevstwo$p.value
+ci1 <- onevstwo$conf.int[1]
+ci2 <- onevstwo$conf.int[2]
+```
+Our second set of tests compares 1 mg/day with 2 mg/day. Our p-value is $`r pv`$ which is also very low. Our confidence interval is `r ci1` to `r ci2` which does **not** include zero, so we can again say that **there is a significant increase in tooth size at the p=0.5 level**.
+
+### Supplement and Odontoblast Length
 Here we will combine all dosages together and group by which supplement was given.
 ```{r}
 s1 <- subset(ToothGrowth, supp=="OJ"); s2 <- subset(ToothGrowth, supp=="VC")
-t.test(s1$len,s2$len,paired=FALSE, var.equal=FALSE)
+stest <-t.test(s1$len,s2$len,paired=FALSE, var.equal=FALSE)
+stest$conf.int
 ```
-### Conclusion
-There is a definite positive correlation between increased dosage and larger odontoblasts. This is making the assumption that the distributions are roughly gaussian and independent (`iid`).
+```{r echo=FALSE}
+pv <- stest$p.value
+ci1 <- stest$conf.int[1]
+ci2 <- stest$conf.int[2]
+```
+This shows a 95% confidence interval which does include zero, and the p-value of 
+`r pv` is greater than 0.05 so we can say that there is **no significant difference at the p=0.05 level** between the OJ and VC groups.
 
-There appears to be a relationship between supplement type and growth, but it is not statistically significant at the $\mathrm p=0.5$ level. From our preliminary graph, it may even be important only at lower doses, but that could also be cherry-picking our subsets, a temptation which I will resist.
+## Conclusion
+There is a **definite positive correlation between increased dosage and larger odontoblasts at the p=0.5 level**. This is using the T-test which makes the assumption that the distributions are roughly Gaussian and independent (`iid`).
+
+There appears to be a relationship between supplement type and growth, but it is **not statistically significant at the p=0.5 level**. From our preliminary graph, it may even be important only at lower doses, but that could also be cherry-picking our subsets, a temptation which I will resist. We can also reduce the p-value by getting more data.
+
+\newpage
+
+## Appendices
+
+### Output of `sessionInfo()`
+```{r}
+sessionInfo()
+```
+
+### Code for the graph
+```{r, eval=FALSE}
+qplot(x = ToothGrowth$dose, y=ToothGrowth$len,geom = "smooth", 
+      method="lm", 
+      colour=ToothGrowth$supp, 
+      main="Tooth Growth by Supplement and Dosage",
+      xlab="Dosage (mg/day)",
+      ylab="Length (microns)") + 
+  scale_colour_discrete(name="Supplement") +
+  scale_shape_discrete(name="Supplement") +
+  geom_point(aes(shape=ToothGrowth$supp))
+```
+
+### Full output of the T-tests
+This is included as a source for any numbers for which code was not visible in the main report, namely the p-values.
+
+For 0.5 mg/day versus 1 mg/day:
+```{r}
+halfvsone
+```
+
+For 1 mg/day versus 2 mg/day:
+```{r}
+onevstwo
+```
+
+For OJ versus VC:
+```{r}
+stest
+```
