@@ -26,14 +26,14 @@ kable(table(ToothGrowth$dose,ToothGrowth$supp))
 summary(ToothGrowth$len)
 ```
 
-As expected, we have 60 observations (3 dosages, 0.5, 1, and 2; multiplied by 2 supplements, OJ and VC; and 10 guinea pigs). We know from the documentation that dosage is in `mg`, that `OJ` stands for Orange Juice and `VC` stands for Vitamin C, or ascorbic acid. The units of length are not specified there, but from [Crampton 47](http://jn.nutrition.org/content/33/5/491.full.pdf) they appear to be microns. For the purposes of this analysis, the units aren't critical.
+As expected, we have 60 observations (3 dosages, 0.5, 1, and 2; multiplied by 2 supplements, OJ and VC; and 10 guinea pigs per group). We know from the documentation that dosage is in `mg/day`, that `OJ` stands for Orange Juice and `VC` stands for Vitamin C, or ascorbic acid. The units of length are not specified there, but from [Crampton 1947](http://jn.nutrition.org/content/33/5/491.full.pdf) they appear to be microns. For the purposes of this analysis, the units aren't critical.
 
 ```{r, echo=FALSE}
 qplot(x = ToothGrowth$dose, y=ToothGrowth$len,geom = "smooth", 
       method="lm", 
       colour=ToothGrowth$supp, 
       main="Tooth Growth by Supplement and Dosage",
-      xlab="Dosage (mg)",
+      xlab="Dosage (mg/day)",
       ylab="Length (microns)") + 
   scale_colour_discrete(name="Supplement") +
   scale_shape_discrete(name="Supplement") +
@@ -45,7 +45,20 @@ Looking at this graph it appears that there is a positive relationship between d
 ### Confidence Intervals and Hypothesis Testing
 
 ## Dosage and Odontoblast Length
-
+Here we will make three groups by dosage and take two comparisons: 0.5 mg/day versus 1 mg/day; and 1 mg/day versus 2 mg/day.
+```{r}
+d1 <- subset(ToothGrowth, dose==0.5); d2 <- subset(ToothGrowth, dose==1.0); d3 <- subset(ToothGrowth, dose==2.0)
+halfvsone <- t.test(d1$len,d2$len, paired=FALSE,var.equal=FALSE)
+onevstwo <- t.test(d2$len,d3$len, paired=FALSE,var.equal=FALSE)
+halfvsone; onevstwo
+```
 ## Supplement and Odontoblast Length
-
+Here we will combine all dosages together and group by which supplement was given.
+```{r}
+s1 <- subset(ToothGrowth, supp=="OJ"); s2 <- subset(ToothGrowth, supp=="VC")
+t.test(s1$len,s2$len,paired=FALSE, var.equal=FALSE)
+```
 ### Conclusion
+There is a definite positive correlation between increased dosage and larger odontoblasts. This is making the assumption that the distributions are roughly gaussian and independent (`iid`).
+
+There appears to be a relationship between supplement type and growth, but it is not statistically significant at the $\mathrm p=0.5$ level. From our preliminary graph, it may even be important only at lower doses, but that could also be cherry-picking our subsets, a temptation which I will resist.

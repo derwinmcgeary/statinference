@@ -3,17 +3,17 @@ title: "Central Limit Theorem and the Exponential Distribution"
 author: "Derwin McGeary"
 date: "September 18, 2015"
 output:
-  html_document: default
   pdf_document:
     fig_height: 3
+  html_document: default
 ---
-### Overview
+## Overview
 
 We are going to demonstrate how the central limit theorem applies by using a simulation from the exponential distribution.
 
-### Simulations
+## Simulations
 
-So we start by setting the parameters and loading the ggplot2 library. We also set the seed here to make the results fully reproducible. They don't need to be in this case, but it's a good habit.
+So we start by setting the parameters and loading the `ggplot2` library. We also set the seed here to make the results fully reproducible. They don't need to be in this case, but it's a good habit.
 ```{r} 
 library(ggplot2)
 lambda <- 0.2
@@ -28,14 +28,14 @@ averages=NULL
 for(i in 1:nosim) averages=c(averages, mean(rexp(n,lambda)))
 ```
 
-## Sample Mean versus Theoretical Mean
+### Sample Mean versus Theoretical Mean
 
 Let us take the mean of our samples.
 ```{r}
 avmean <- mean(averages)
 emean <- 1/lambda
 ```
-The mean of the averages is `r avmean`. The expected mean of the exponential distribution is $\mu = \frac{1}{\lambda} = `r emean`$. That's a difference of `r round(100*abs(avmean-emean)/emean,2)`%.
+The mean of the averages is **`r round(avmean,3)`**. The expected mean of the exponential distribution is **$\mu = \frac{1}{\lambda} = `r emean`$**. That's a difference of `r round(100*abs(avmean-emean)/emean,2)`%.
 
 Let's look at that graphically
 ```{r}
@@ -57,19 +57,18 @@ histo +
 
 We can see that the sample and theoretical means are practically on top of each other.
 
-## Sample Variance versus Theoretical Variance
-Include figures (output from R) with titles. Highlight the variances you are comparing. Include text that explains your understanding of the differences of the variances.
+### Sample Variance versus Theoretical Variance
 
-The theoretical variance of the exponential function is $\lambda^{-2}$ which is `r lambda^-2` in this case. The expected sample variance is $\frac{\lambda^{-2}}{N}$ which is `r (lambda^-2)/n`. In reality, our samples give us
+The theoretical variance of the exponential function is $\lambda^{-2}$ which is `r lambda^-2` in this case. The expected variance *of the sample mean* is $\frac{\lambda^{-2}}{N}$ which is **`r (lambda^-2)/n`**. In reality, our samples give us
 ```{r}
 esampvar <- (lambda^-2)/n # this is the expected sample variance
 print(avvar <- var(averages)) # this is our actual sample variance
 ```
 
-So the difference is `r round(100*abs(avvar-esampvar)/esampvar,2)`%.
+So the variance is **`r round(avvar,3)`** and the difference from our expected variance is `r round(abs(avvar-esampvar),3)`, or `r round(100*abs(avvar-esampvar)/esampvar,2)`%.
 
-## Distribution
-The following chart displays the density function and the normal curve.
+### Distribution
+The following chart displays the density function for our samples and superimposes the normal curve.
 ```{r}
 histo + 
   stat_function(fun = dnorm, args=list(mean=1/lambda, sd=sqrt(esampvar)), 
@@ -78,3 +77,10 @@ histo +
 ```
 
 So it can be seen that our distribution is indeed approximately normal.
+
+## Appendix
+
+This was done with the following setup, on Ubuntu running on a Samsung Chromebook.
+```{r}
+sessionInfo()
+```
